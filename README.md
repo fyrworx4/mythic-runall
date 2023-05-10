@@ -3,8 +3,12 @@
 A Python script that runs a single command over multiple callbacks in Mythic through the REST API.
 
 ## Installation
+Clone the repository:
 ```bash
 git clone https://github.com/fyrworx4/mythic-runall.git
+```
+Install Mythic Python library:
+```
 pip3 install mythic
 ```
 
