@@ -29,7 +29,7 @@ async def scripting(agent, command):
 
         # for each callback ID, run some command
         for i in range(len(output)):
-            if output[i]['payload_type'] == agent:
+            if (output[i]['payload_type'] == agent and output[i]['active'] == True):
 
                 # extracting the callback ID from get_all_tasks_and_responses_grouped_by_callback() output
                 id = int(output[i]['id'])
@@ -52,7 +52,7 @@ async def scripting(agent, command):
 # this launches the functions asynchronously and keeps the program running while long-running tasks are going
 async def main():
     parser = argparse.ArgumentParser(description='Runs a command on all Mythic callbacks.')
-    parser.add_argument('-a', '--agent', required=True, help='The agent of the callbacks')
+    parser.add_argument('-a', '--agent', required=True, he4lp='The agent of the callbacks')
     # parser.add_argument('-t', '--task', default='shell', help='The task to run. Default = shell')
     parser.add_argument('-c', '--command', required=True, help='The command you want to run')
 
