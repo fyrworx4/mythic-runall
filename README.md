@@ -40,7 +40,7 @@ options:
 
 ## Example
 
-To run `whoami` on all callbacks with the Merlin agent:
+To run `whoami` on all callbacks that use the `merlin` agent:
 ```bash
 python3 runall.py -a merlin -c 'whoami'
 ```
