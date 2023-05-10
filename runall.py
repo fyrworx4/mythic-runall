@@ -52,7 +52,7 @@ async def scripting(agent, command):
 # this launches the functions asynchronously and keeps the program running while long-running tasks are going
 async def main():
     parser = argparse.ArgumentParser(description='Runs a command on all Mythic callbacks.')
-    parser.add_argument('-a', '--agent', required=True, he4lp='The agent of the callbacks')
+    parser.add_argument('-a', '--agent', required=True, help='The agent of the callbacks')
     # parser.add_argument('-t', '--task', default='shell', help='The task to run. Default = shell')
     parser.add_argument('-c', '--command', required=True, help='The command you want to run')
 
