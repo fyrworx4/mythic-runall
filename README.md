@@ -1,6 +1,6 @@
 # mythic-runall
 
-A quick Python script that uses the Mythic REST API to run a command on all callbacks in a Mythic instance.
+A Python script that runs a single command over multiple callbacks in Mythic through the REST API.
 
 ## Installation
 ```bash
