@@ -37,3 +37,10 @@ options:
   -c COMMAND, --command COMMAND
                         The command you want to run
 ```
+
+## Example
+
+To run `whoami` on all callbacks with the Merlin agent:
+```bash
+python3 runall.py -a merlin -c 'whoami'
+```
