@@ -1,6 +1,6 @@
 # mythic-runall
 
-A Python script that runs a single command over multiple callbacks in Mythic through the REST API.
+A Python script that runs a single command over multiple callbacks in Mythic through the GraphQL interface. Updated for Mythic v3.0.0.
 
 ## Installation
 Clone the repository:
@@ -17,14 +17,10 @@ pip3 install mythic
 Edit `runall.py` with your Mythic server's IP address and admin username/password.
 
 ```
-mythic = mythic_rest.Mythic(
-        username="mythic_admin",
-        password="mythic_admin",
-        server_ip="192.168.0.158",
-        server_port="7443",
-        ssl=True,
-        global_timeout=-1,
-    )
+mythic_username = "mythic_admin"
+mythic_password = "mythic_admin"
+mythic_serverip = "10.128.10.239"
+mythic_serverport = 7443
 ```
 
 ## Usage

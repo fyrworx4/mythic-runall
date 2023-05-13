@@ -1,82 +1,69 @@
-from mythic import mythic_rest
-from sys import exit
-from os import system
+from mythic import mythic, mythic_classes
 import asyncio
-import json
 import argparse
 
+mythic_username = "mythic_admin"
+mythic_password = "mythic_admin"
+mythic_serverip = "10.128.10.239"
+mythic_serverport = 7443
 
-async def scripting(agent, command):
+
+async def main() -> asyncio.coroutine:
+
+    # arg parse stuff
+    parser = argparse.ArgumentParser(description='Runs a command on all Mythic callbacks.')
+    parser.add_argument('-a', '--agent', required=True, help='The type of agent you want to run commands on')
+    parser.add_argument('-c', '--command', required=True, help='The command you want to run')
     
-    # sample login
-    mythic = mythic_rest.Mythic(
-        username="mythic_admin",
-        password="mythic_admin",
-        server_ip="192.168.0.158",
-        server_port="7443",
-        ssl=True,
-        global_timeout=-1,
-    )
-    print("[+] Logging into Mythic")
-    await mythic.login()
+    args = parser.parse_args()
 
-    print(f"[i] Running '{command}' on all {agent} agents")
-
+    agent = args.agent
+    command = args.command
+    
     try:
-        # get all callbacks in some weird output
-        all_tasks = await mythic.get_all_tasks_and_responses_grouped_by_callback()
-        output = all_tasks.to_json()['raw_response']['output']
+        print("[i] Connecting to Mythic Instance...")
 
-        # for each callback ID, run some command
-        for i in range(len(output)):
-            if (output[i]['payload_type'] == agent and output[i]['active'] == True):
+        mythic_instance = await mythic.login(
+            username = mythic_username,
+            password = mythic_password,
+            server_ip = mythic_serverip,
+            server_port = mythic_serverport,
+            timeout = -1
+        )
 
-                # extracting the callback ID from get_all_tasks_and_responses_grouped_by_callback() output
-                id = int(output[i]['id'])
+        print("[+] Connected to Mythic Instance.")
+        
+        print(f"[i] Obtaining callback IDs of type {agent}")
 
-                # create a new Callback object for each ID, create a new task that runs some command
-                
-                callback = mythic_rest.Callback(id=id)
-                task = mythic_rest.Task(
-                    callback=callback, command="shell", params=command
-                )
+        ids = []
 
-                # perform the task
-                await mythic.create_task(task)
-                print(f"[+] Callback ID {id}: Successfully ran '{command}'")
+        callbacks = await mythic.get_all_active_callbacks(
+            mythic = mythic_instance
+        )
+
+        for i in range(len(callbacks)):
+            if ((callbacks[i]['payload']['payloadtype']['name']) == agent):
+            # print(callbacks)
+                ids.append(callbacks[i]['display_id'])
+        
+        if len(ids) == 0:
+            print(f"[-] ERROR! There are no callbacks of type {agent}")
+            exit()
+
+        for i in range(len(ids)):
+            print(f"[i] Running '{command}' command on callback ID {ids[i]}")
+            task = await mythic.issue_task(
+                mythic = mythic_instance,
+                command_name = "shell",
+                parameters = command,
+                callback_display_id = ids[i],
+                timeout = 10,
+                wait_for_complete = False
+            )
 
     except Exception as e:
         print(str(e))
 
-# everything below here is expected as a staple at the end of your program
-# this launches the functions asynchronously and keeps the program running while long-running tasks are going
-async def main():
-    parser = argparse.ArgumentParser(description='Runs a command on all Mythic callbacks.')
-    parser.add_argument('-a', '--agent', required=True, help='The agent of the callbacks')
-    # parser.add_argument('-t', '--task', default='shell', help='The task to run. Default = shell')
-    parser.add_argument('-c', '--command', required=True, help='The command you want to run')
-
-    args = parser.parse_args()
-    agent = args.agent
-    command = args.command
-
-
-    await scripting(agent, command)
-    try:
-        while True:
-            pending = asyncio.all_tasks()
-            plist = []
-            for p in pending:
-                if p._coro.__name__ != "main" and p._state == "PENDING":
-                    plist.append(p)
-            if len(plist) == 0:
-                exit(0)
-            else:
-                await asyncio.gather(*plist)
-    except KeyboardInterrupt:
-        pending = asyncio.Task.all_tasks()
-        for t in pending:
-            t.cancel()
-
-loop = asyncio.get_event_loop()
+loop = asyncio.new_event_loop()
+asyncio.set_event_loop(loop)
 loop.run_until_complete(main())
