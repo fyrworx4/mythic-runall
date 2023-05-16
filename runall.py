@@ -1,23 +1,25 @@
-from mythic import mythic, mythic_classes
+from mythic import mythic
 import asyncio
 import argparse
 
 mythic_username = "mythic_admin"
 mythic_password = "mythic_admin"
-mythic_serverip = "10.128.10.239"
+mythic_serverip = "192.168.0.158"
 mythic_serverport = 7443
 
 
-async def main() -> asyncio.coroutine:
+async def main() -> asyncio.coroutines:
 
     # arg parse stuff
     parser = argparse.ArgumentParser(description='Runs a command on all Mythic callbacks.')
     parser.add_argument('-a', '--agent', required=True, help='The type of agent you want to run commands on')
+    parser.add_argument('-t', '--task', default='shell', help='The task that you want to run. Default: shell')
     parser.add_argument('-c', '--command', required=True, help='The command you want to run')
     
     args = parser.parse_args()
 
     agent = args.agent
+    tasking = args.task
     command = args.command
     
     try:
@@ -32,8 +34,8 @@ async def main() -> asyncio.coroutine:
         )
 
         print("[+] Connected to Mythic Instance.")
-        
-        print(f"[i] Obtaining callback IDs of type {agent}")
+        print(f"[i] Selected task: {tasking}")
+        print(f"[i] Selected agent: {agent}")
 
         ids = []
 
@@ -51,10 +53,10 @@ async def main() -> asyncio.coroutine:
             exit()
 
         for i in range(len(ids)):
-            print(f"[i] Running '{command}' command on callback ID {ids[i]}")
+            print(f"[i] Running '{tasking}' task with '{command}' command on callback ID {ids[i]}")
             task = await mythic.issue_task(
                 mythic = mythic_instance,
-                command_name = "shell",
+                command_name = tasking,
                 parameters = command,
                 callback_display_id = ids[i],
                 timeout = 10,
